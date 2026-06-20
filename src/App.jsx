@@ -45,6 +45,12 @@ export default function App() {
 
   const current = overlay?.id ? entries.find((e) => e.id === overlay.id) : null
 
+  // 장소 검색 서버 주소: 설정값이 있으면 그걸, 없으면 앱이 호스팅된 같은 서버의 /place-proxy 를 기본 사용.
+  // (배포 후 폰에서 별도 설정 없이 바로 장소 검색이 되도록)
+  const placeApiBase =
+    (settings.placeApiBase || '').trim() ||
+    (typeof window !== 'undefined' ? window.location.origin + '/place-proxy' : '')
+
   // 입력 자동완성용: 이미 쓴 지역 목록 (빈도순)
   const regions = (() => {
     const count = {}
@@ -91,7 +97,7 @@ export default function App() {
             <EntryForm
               initial={current}
               regions={regions}
-              placeApiBase={settings.placeApiBase || ''}
+              placeApiBase={placeApiBase}
               onSave={handleSave}
               onCancel={() => setOverlay(current ? { name: 'detail', id: current.id } : null)}
             />

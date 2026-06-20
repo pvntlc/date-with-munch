@@ -33,6 +33,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
         navigateFallback: '/index.html',
+        // 프록시 경로는 서비스워커가 가로채지 않도록 (네트워크로 직행)
+        navigateFallbackDenylist: [/^\/place-proxy\//],
       },
     }),
   ],

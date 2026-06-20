@@ -134,12 +134,12 @@ export default function MoreView({ entries, settings, onSaveSettings, onChanged 
       <div className="more-card">
         <h3>장소 검색 서버</h3>
         <p className="muted">
-          네이버 장소 검색용 프록시 서버 주소를 넣으면, 기록 작성 시 장소를 검색해 고르고
-          지역(구)이 자동으로 채워집니다. (server 폴더의 안내 참고)
+          비워두면 앱이 설치된 서버의 <code>/place-proxy</code> 를 자동으로 사용해요.
+          다른 서버를 쓰거나 끄고 싶을 때만 입력하세요. (테스트용은 <code>mock</code>)
         </p>
         <input
           className="input"
-          placeholder="https://내서버주소 (또는 테스트용 mock)"
+          placeholder="비워두면 자동 (또는 https://다른서버, mock)"
           value={apiBase}
           onChange={(e) => setApiBase(e.target.value)}
         />
