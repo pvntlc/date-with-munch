@@ -58,6 +58,15 @@ const PATHS = {
       <path d="M8 11V8a4 4 0 0 1 8 0v3" />
     </>
   ),
+  fingerprint: (
+    <>
+      <path d="M12 10a2 2 0 0 1 2 2c0 2.5-.4 4.5-1.2 6.2" />
+      <path d="M9.5 5.5A5 5 0 0 1 17 10c0 1.5 0 3-.5 4.5" />
+      <path d="M7 8a5 5 0 0 0-.9 2.9c0 2.2-.3 4.3-1.1 6.1" />
+      <path d="M12 12c0 3-.5 5.5-1.5 7.8" />
+      <path d="M20 13c.3-3.5-1-7-4-9a8 8 0 0 0-8 0" />
+    </>
+  ),
 }
 
 export default function Icon({ name, size = 20, className, style }) {

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Icon from './Icon.jsx'
+import LockSettings from './LockSettings.jsx'
 import { getAllEntries, getSettings, replaceAll, mergeEntries } from '../db.js'
 import { blobToDataURL, dataURLToBlob } from '../utils.js'
 
@@ -112,6 +113,8 @@ export default function MoreView({ entries, settings, onSaveSettings, onChanged 
 
   return (
     <div className="more">
+      <LockSettings settings={settings} onSaveSettings={onSaveSettings} />
+
       <div className="more-card">
         <h3>백업 &amp; 복원</h3>
         <p className="muted">

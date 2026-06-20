@@ -43,7 +43,14 @@ export async function deleteEntry(id) {
 }
 
 // ----- 설정(기념일 등) -----
-const DEFAULT_SETTINGS = { startDate: '', anniversaries: [], coupleName: '', placeApiBase: '' }
+const DEFAULT_LOCK = { enabled: false, pinHash: '', pinSalt: '', pinLen: 0, bioCredId: '' }
+const DEFAULT_SETTINGS = {
+  startDate: '',
+  anniversaries: [],
+  coupleName: '',
+  placeApiBase: '',
+  lock: DEFAULT_LOCK,
+}
 
 export async function getSettings() {
   const db = await dbPromise

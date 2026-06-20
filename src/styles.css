@@ -370,6 +370,58 @@ img { display: block; }
 .naver-btn:hover { background: #e7f6ec; }
 .naver-btn svg:last-child { opacity: 0.6; }
 
+/* ---------- Lock screen ---------- */
+.lockscreen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 200;
+}
+.lock-top { text-align: center; margin-bottom: 28px; }
+.lock-logo {
+  width: 56px; height: 56px; border-radius: 16px; background: var(--ink); color: #fff;
+  display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;
+}
+.lock-top h2 { margin: 0 0 4px; font-size: 19px; font-weight: 600; }
+.lock-top p { margin: 0; font-size: 13.5px; }
+
+.pin-dots { display: flex; gap: 14px; justify-content: center; }
+.pin-dot { width: 13px; height: 13px; border-radius: 50%; border: 1.5px solid var(--border-strong); transition: all 0.1s ease; }
+.pin-dot.on { background: var(--ink); border-color: var(--ink); }
+.pin-dots.shake { animation: shake 0.4s; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+.lock-error { height: 18px; margin: 12px 0 18px; font-size: 13px; color: #b42318; }
+
+.pinpad {
+  display: grid;
+  grid-template-columns: repeat(3, 72px);
+  gap: 16px;
+  justify-content: center;
+}
+.pinkey {
+  width: 72px; height: 72px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--surface);
+  font-size: 26px; font-weight: 500; color: var(--text);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.1s ease, transform 0.06s ease;
+}
+.pinkey:active { transform: scale(0.94); background: #efefec; }
+.pinkey.ghost { border-color: transparent; background: transparent; color: var(--text-soft); }
+.pinkey.ghost:disabled { opacity: 0; pointer-events: none; }
+
+.pin-setup { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+.lock-status { font-size: 14px; font-weight: 500; margin: 4px 0 12px; }
+.lock-msg { font-size: 12.5px; margin-top: 10px; }
+
 /* ---------- Place picker ---------- */
 .picker .search { margin-bottom: 0; }
 .picker .search .btn.icon { padding: 6px 12px; font-size: 13px; }
