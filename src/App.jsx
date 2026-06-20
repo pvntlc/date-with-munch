@@ -19,14 +19,6 @@ const TABS = [
   { key: 'more', label: '더보기', icon: 'settings' },
 ]
 
-const TITLES = {
-  timeline: '위드먼치',
-  calendar: '달력',
-  course: '지역별 코스',
-  dday: '기념일 · D-day',
-  more: '더보기',
-}
-
 export default function App() {
   const [entries, setEntries] = useState([])
   const [settings, setSettings] = useState({ startDate: '', anniversaries: [] })
@@ -121,8 +113,8 @@ export default function App() {
       <header className="topbar">
         <div className="topbar-inner">
           <div className="brand">
+            <span className="brand-text">위드먼치</span>
             <img src="/munch.png" alt="먹고자" className="brand-munch" />
-            {inOverlay ? '위드먼치' : TITLES[tab]}
           </div>
           <div className="spacer" />
           {!inOverlay && (tab === 'timeline' || tab === 'calendar') && (
