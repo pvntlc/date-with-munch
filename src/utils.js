@@ -56,12 +56,33 @@ export function compressImage(file, maxSize = 1600, quality = 0.82) {
 }
 
 export const MOODS = [
-  { value: 5, emoji: '🥰', label: '최고' },
-  { value: 4, emoji: '😊', label: '좋음' },
-  { value: 3, emoji: '🙂', label: '보통' },
+  { value: 5, emoji: '😄', label: '최고' },
+  { value: 4, emoji: '🙂', label: '좋음' },
+  { value: 3, emoji: '😐', label: '보통' },
   { value: 2, emoji: '😕', label: '아쉬움' },
-  { value: 1, emoji: '😢', label: '별로' },
+  { value: 1, emoji: '😞', label: '별로' },
 ]
+
+// 기록의 장소 목록을 반환 (예전 단일 place 기록은 자동으로 1개짜리 배열로 변환)
+export function getPlaces(entry) {
+  if (!entry) return []
+  if (Array.isArray(entry.places)) return entry.places
+  if (entry.place) {
+    return [
+      {
+        id: 'legacy',
+        name: entry.place,
+        region: entry.region || '',
+        address: entry.address || '',
+        lat: entry.lat ?? null,
+        lng: entry.lng ?? null,
+        rating: entry.rating || 0,
+        review: '',
+      },
+    ]
+  }
+  return []
+}
 
 // ---------- D-day 계산 ----------
 const DAY = 86400000

@@ -9,6 +9,7 @@ import EntryForm from './components/EntryForm.jsx'
 import LockScreen from './components/LockScreen.jsx'
 import Icon from './components/Icon.jsx'
 import { getAllEntries, getSettings, saveSettings, saveEntry, deleteEntry } from './db.js'
+import { getPlaces } from './utils.js'
 
 const TABS = [
   { key: 'timeline', label: '기록', icon: 'book' },
@@ -32,7 +33,13 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('timeline')
   const [overlay, setOverlay] = useState(null) // {name:'detail'|'form', id?}
-  const [unlocked, setUnlocked] = useState(false)
+  // 한 번 잠금 해제하면 앱을 완전히 닫기 전까지(세션 동안) 다시 안 물어봄
+  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem('unlocked') === '1')
+
+  function unlock() {
+    sessionStorage.setItem('unlocked', '1')
+    setUnlocked(true)
+  }
 
   async function refresh() {
     const [e, s] = await Promise.all([getAllEntries(), getSettings()])
@@ -61,7 +68,9 @@ export default function App() {
   // 입력 자동완성용: 이미 쓴 지역 목록 (빈도순)
   const regions = (() => {
     const count = {}
-    for (const e of entries) if (e.region?.trim()) count[e.region.trim()] = (count[e.region.trim()] || 0) + 1
+    for (const e of entries)
+      for (const p of getPlaces(e))
+        if (p.region?.trim()) count[p.region.trim()] = (count[p.region.trim()] || 0) + 1
     return Object.keys(count).sort((a, b) => count[b] - count[a])
   })()
 
@@ -86,7 +95,7 @@ export default function App() {
 
   // 잠금 화면 게이트
   if (!loading && settings.lock?.enabled && !unlocked) {
-    return <LockScreen lock={settings.lock} onUnlock={() => setUnlocked(true)} />
+    return <LockScreen lock={settings.lock} onUnlock={unlock} />
   }
 
   return (
