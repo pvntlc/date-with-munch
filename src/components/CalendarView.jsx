@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import Photo from './Photo.jsx'
 import Icon from './Icon.jsx'
-import { formatDate, MOODS } from '../utils.js'
+import { formatDate, MOODS, getPlaces } from '../utils.js'
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
 
@@ -92,7 +92,11 @@ export default function CalendarView({ entries, onOpen }) {
 
       {selected && (
         <div className="cal-day-list">
-          <h3>{formatDate(selected)}</h3>
+          <h3>
+            {formatDate(selected)}
+            <span className="day-count">{selectedEntries.length}개</span>
+          </h3>
+          <div className="cal-day-cards">
           {selectedEntries.map((e) => {
             const mood = MOODS.find((m) => m.value === e.mood)
             return (
@@ -105,13 +109,19 @@ export default function CalendarView({ entries, onOpen }) {
                 <span className="cal-day-info">
                   <strong>{e.title || '제목 없는 데이트'}</strong>
                   <span className="muted">
-                    {e.place ? <><Icon name="pin" size={13} /> {e.place}</> : null} {mood ? mood.emoji : ''}
+                    {(() => {
+                      const pls = getPlaces(e)
+                      return pls.length ? (
+                        <><Icon name="pin" size={13} /> {pls[0].name}{pls.length > 1 ? ` 외 ${pls.length - 1}` : ''}</>
+                      ) : null
+                    })()} {mood ? mood.emoji : ''}
                   </span>
                 </span>
                 <span className="chev"><Icon name="chevron" size={18} /></span>
               </button>
             )
           })}
+          </div>
         </div>
       )}
     </div>

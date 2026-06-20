@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import Photo from './Photo.jsx'
 import Icon from './Icon.jsx'
-import { formatDate, MOODS, naverMapUrl } from '../utils.js'
+import StarRating from './StarRating.jsx'
+import { formatDate, MOODS, naverMapUrl, getPlaces } from '../utils.js'
 
 export default function EntryDetail({ entry, onBack, onEdit, onDelete }) {
   const [zoom, setZoom] = useState(null) // 확대해서 볼 사진 blob
   const mood = MOODS.find((m) => m.value === entry.mood)
   const photos = entry.photos || []
+  const places = getPlaces(entry)
 
   return (
     <div>
@@ -30,23 +32,40 @@ export default function EntryDetail({ entry, onBack, onEdit, onDelete }) {
         <h1 className="detail-title">{entry.title || '제목 없는 데이트'}</h1>
         <div className="detail-sub">
           <span><Icon name="calendar" size={15} /> {formatDate(entry.date)}</span>
-          {entry.place && (
-            <span><Icon name="pin" size={15} /> {entry.region ? `${entry.region} · ` : ''}{entry.place}</span>
-          )}
           {mood && <span>{mood.emoji} {mood.label}</span>}
         </div>
-        {entry.place && (
-          <a
-            className="btn naver-btn"
-            href={naverMapUrl((entry.region ? entry.region + ' ' : '') + entry.place)}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <Icon name="map" size={16} /> 네이버 지도에서 보기
-            <Icon name="external" size={14} />
-          </a>
-        )}
       </div>
+
+      {places.length > 0 && (
+        <div className="section">
+          <h3>다녀온 장소 {places.length > 1 ? `· ${places.length}곳` : ''}</h3>
+          <div className="place-list">
+            {places.map((p) => (
+              <div key={p.id} className="place-card">
+                <div className="place-card-head">
+                  <div className="place-card-name">
+                    <strong>{p.name}</strong>
+                    {p.region && <span className="picked-region">{p.region}</span>}
+                  </div>
+                  <a
+                    className="course-map"
+                    href={naverMapUrl((p.region ? p.region + ' ' : '') + p.name)}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="네이버 지도에서 보기"
+                    title="네이버 지도에서 보기"
+                  >
+                    <Icon name="map" size={18} />
+                  </a>
+                </div>
+                {p.address && <div className="muted place-card-addr">{p.address}</div>}
+                {p.rating > 0 && <StarRating value={p.rating} size={18} readOnly />}
+                {p.review?.trim() && <p className="place-card-review">{p.review}</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {entry.activities?.length > 0 && (
         <div className="section">

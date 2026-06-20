@@ -2,7 +2,8 @@ import { useRef, useState } from 'react'
 import Photo from './Photo.jsx'
 import Icon from './Icon.jsx'
 import PlacePicker from './PlacePicker.jsx'
-import { MOODS, todayISO, compressImage, REGION_SUGGEST } from '../utils.js'
+import StarRating from './StarRating.jsx'
+import { MOODS, todayISO, compressImage, REGION_SUGGEST, getPlaces } from '../utils.js'
 import { isConfigured } from '../placeApi.js'
 import { newId } from '../db.js'
 
@@ -11,14 +12,13 @@ const SUGGESTIONS = ['맛집', '카페', '영화', '드라이브', '산책', '�
 export default function EntryForm({ initial, onSave, onCancel, regions = [], placeApiBase = '' }) {
   const [title, setTitle] = useState(initial?.title || '')
   const [date, setDate] = useState(initial?.date || todayISO())
-  const [place, setPlace] = useState(initial?.place || '')
-  const [region, setRegion] = useState(initial?.region || '')
-  const [address, setAddress] = useState(initial?.address || '')
-  const [coords, setCoords] = useState(
-    initial?.lat != null ? { lat: initial.lat, lng: initial.lng } : null
+  const [places, setPlaces] = useState(() =>
+    getPlaces(initial).map((p) => ({ ...p, id: p.id === 'legacy' ? newId() : p.id }))
   )
-  // 검색 서버가 있고, 아직 장소를 안 골랐으면 검색 모드로 시작
-  const [manual, setManual] = useState(!isConfigured(placeApiBase) || !!initial?.place)
+  const [adding, setAdding] = useState(false) // 장소 추가 중(검색/입력 패널 표시)
+  const [manualAdd, setManualAdd] = useState(!isConfigured(placeApiBase))
+  const [manualName, setManualName] = useState('')
+  const [manualRegion, setManualRegion] = useState('')
   const [mood, setMood] = useState(initial?.mood || 0)
   const [activities, setActivities] = useState(initial?.activities || [])
   const [diary, setDiary] = useState(initial?.diary || '')
@@ -65,20 +65,45 @@ export default function EntryForm({ initial, onSave, onCancel, regions = [], pla
     setPhotos((prev) => prev.filter((p) => p.id !== id))
   }
 
+  function addPlace(p) {
+    setPlaces((prev) => [
+      ...prev,
+      {
+        id: newId(),
+        name: p.name.trim(),
+        region: (p.region || '').trim(),
+        address: p.address || '',
+        lat: p.lat ?? null,
+        lng: p.lng ?? null,
+        rating: 0,
+        review: '',
+      },
+    ])
+    setAdding(false)
+    setManualName('')
+    setManualRegion('')
+  }
+  function updatePlace(id, patch) {
+    setPlaces((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)))
+  }
+  function removePlace(id) {
+    setPlaces((prev) => prev.filter((x) => x.id !== id))
+  }
+  function addManual() {
+    if (!manualName.trim()) return
+    addPlace({ name: manualName, region: manualRegion })
+  }
+
   function submit() {
-    if (!title.trim() && !diary.trim() && photos.length === 0) {
-      alert('제목, 일기, 사진 중 하나는 채워 주세요 🙂')
+    if (!title.trim() && !diary.trim() && photos.length === 0 && places.length === 0) {
+      alert('제목, 일기, 사진, 장소 중 하나는 채워 주세요 🙂')
       return
     }
     onSave({
       id: initial?.id || newId(),
       title: title.trim(),
       date,
-      place: place.trim(),
-      region: region.trim(),
-      address: address.trim(),
-      lat: coords?.lat ?? null,
-      lng: coords?.lng ?? null,
+      places: places.map((p) => ({ ...p, name: p.name.trim(), region: p.region.trim() })),
       mood,
       activities,
       diary,
@@ -136,76 +161,76 @@ export default function EntryForm({ initial, onSave, onCancel, regions = [], pla
 
       <div className="field">
         <label>
-          장소 <span className="muted" style={{ fontWeight: 400 }}>· 지역은 코스 정리에 쓰여요</span>
+          다녀온 장소 <span className="muted" style={{ fontWeight: 400 }}>· 여러 곳 + 별점·리뷰</span>
         </label>
 
-        {isConfigured(placeApiBase) && !manual ? (
-          place ? (
-            // 검색으로 고른 장소 카드
-            <div className="picked">
-              <div className="picked-info">
-                <strong>{place}</strong>
-                {region && <span className="picked-region">{region}</span>}
-                {address && <span className="muted picked-addr">{address}</span>}
+        {/* 추가된 장소들 (각각 별점 + 리뷰) */}
+        {places.map((p) => (
+          <div key={p.id} className="place-edit">
+            <div className="place-edit-head">
+              <div className="place-edit-name">
+                <strong>{p.name}</strong>
+                {p.region && <span className="picked-region">{p.region}</span>}
+                {p.address && <div className="muted picked-addr">{p.address}</div>}
               </div>
-              <button
-                type="button"
-                className="btn"
-                onClick={() => {
-                  setPlace('')
-                  setRegion('')
-                  setAddress('')
-                  setCoords(null)
-                }}
-              >
-                다시 검색
-              </button>
+              <button type="button" className="rm-place" onClick={() => removePlace(p.id)} aria-label="장소 삭제">×</button>
             </div>
-          ) : (
-            <PlacePicker
-              base={placeApiBase}
-              onPick={(p) => {
-                setPlace(p.name)
-                setRegion(p.region || '')
-                setAddress(p.address || '')
-                setCoords(p.lat != null ? { lat: p.lat, lng: p.lng } : null)
-              }}
+            <StarRating value={p.rating} onChange={(v) => updatePlace(p.id, { rating: v })} size={24} />
+            <textarea
+              className="textarea place-review"
+              placeholder="이 장소 어땠어? (한 줄 리뷰)"
+              value={p.review}
+              onChange={(e) => updatePlace(p.id, { review: e.target.value })}
             />
-          )
-        ) : (
-          // 수동 입력 (검색 서버 미설정 또는 직접 입력 선택)
-          <>
-            <input
-              className="input"
-              placeholder="예: 여의도 한강공원"
-              value={place}
-              onChange={(e) => setPlace(e.target.value)}
-            />
-            <input
-              className="input"
-              style={{ marginTop: 8 }}
-              placeholder="지역 (예: 강남구, 성수)"
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
-            />
-            <div className="chip-suggest">
-              {[...new Set([...regions, ...REGION_SUGGEST])]
-                .filter((r) => r && r !== region)
-                .slice(0, 12)
-                .map((r) => (
-                  <button key={r} type="button" onClick={() => setRegion(r)}>+ {r}</button>
-                ))}
-            </div>
-          </>
-        )}
+          </div>
+        ))}
 
-        {isConfigured(placeApiBase) && (
-          <button
-            type="button"
-            className="link-toggle"
-            onClick={() => setManual((m) => !m)}
-          >
-            {manual ? '장소 검색으로 입력' : '직접 입력할래요'}
+        {/* 장소 추가 패널 */}
+        {adding ? (
+          <div className="place-add-panel">
+            {isConfigured(placeApiBase) && !manualAdd ? (
+              <PlacePicker base={placeApiBase} onPick={addPlace} />
+            ) : (
+              <>
+                <input
+                  className="input"
+                  placeholder="장소 이름 (예: 여의도 한강공원)"
+                  value={manualName}
+                  onChange={(e) => setManualName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addManual())}
+                />
+                <input
+                  className="input"
+                  style={{ marginTop: 8 }}
+                  placeholder="지역 (예: 강남구, 성수)"
+                  value={manualRegion}
+                  onChange={(e) => setManualRegion(e.target.value)}
+                />
+                <div className="chip-suggest">
+                  {[...new Set([...regions, ...REGION_SUGGEST])]
+                    .filter((r) => r && r !== manualRegion)
+                    .slice(0, 10)
+                    .map((r) => (
+                      <button key={r} type="button" onClick={() => setManualRegion(r)}>+ {r}</button>
+                    ))}
+                </div>
+                <button type="button" className="btn primary" style={{ marginTop: 10 }} onClick={addManual}>
+                  추가
+                </button>
+              </>
+            )}
+            <div className="place-add-foot">
+              {isConfigured(placeApiBase) && (
+                <button type="button" className="link-toggle" onClick={() => setManualAdd((m) => !m)}>
+                  {manualAdd ? '장소 검색으로' : '직접 입력'}
+                </button>
+              )}
+              <button type="button" className="link-toggle" onClick={() => setAdding(false)}>닫기</button>
+            </div>
+          </div>
+        ) : (
+          <button type="button" className="place-add-btn" onClick={() => setAdding(true)}>
+            <Icon name="plus" size={16} /> 장소 추가
           </button>
         )}
       </div>

@@ -1,24 +1,29 @@
 import { useMemo } from 'react'
 import Icon from './Icon.jsx'
-import { naverMapUrl, shortDate } from '../utils.js'
+import StarRating from './StarRating.jsx'
+import { naverMapUrl, shortDate, getPlaces } from '../utils.js'
 
 const NO_REGION = '지역 미지정'
 
 export default function CourseView({ entries, onOpen }) {
   const groups = useMemo(() => {
+    // (장소, 그 기록) 쌍을 지역별로 모음
     const byRegion = {}
     for (const e of entries) {
-      if (!e.place?.trim()) continue
-      const region = e.region?.trim() || NO_REGION
-      ;(byRegion[region] ||= []).push(e)
+      for (const pl of getPlaces(e)) {
+        if (!pl.name?.trim()) continue
+        const region = pl.region?.trim() || NO_REGION
+        ;(byRegion[region] ||= []).push({ entry: e, pl })
+      }
     }
     return Object.entries(byRegion)
       .map(([region, list]) => {
-        // 같은 장소 묶기 (entries는 최신순 정렬 유지)
+        // 같은 장소 이름 묶기 (entries는 최신순 정렬 유지)
         const placeMap = {}
-        for (const e of list) {
-          const place = e.place.trim()
-          ;(placeMap[place] ||= { place, visits: [] }).visits.push(e)
+        for (const { entry, pl } of list) {
+          const place = pl.name.trim()
+          if (!placeMap[place]) placeMap[place] = { place, visits: [] }
+          placeMap[place].visits.push({ entry, pl })
         }
         const places = Object.values(placeMap)
         return { region, places, count: places.length }
@@ -52,12 +57,16 @@ export default function CourseView({ entries, onOpen }) {
           </div>
           <div className="course-places">
             {g.places.map((p) => {
-              const latest = p.visits[0]
+              const latest = p.visits[0].entry
+              const rating = p.visits[0].pl.rating || 0
               const query = (g.region !== NO_REGION ? g.region + ' ' : '') + p.place
               return (
                 <div key={p.place} className="course-place">
                   <button className="course-place-main" onClick={() => onOpen(latest.id)}>
-                    <span className="course-place-name">{p.place}</span>
+                    <span className="course-place-name">
+                      {p.place}
+                      {rating > 0 && <StarRating value={rating} size={13} readOnly />}
+                    </span>
                     <span className="muted course-place-meta">
                       {shortDate(latest.date)}
                       {p.visits.length > 1 ? ` · ${p.visits.length}번 방문` : ''}

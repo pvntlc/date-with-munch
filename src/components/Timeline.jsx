@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import Photo from './Photo.jsx'
 import Icon from './Icon.jsx'
-import { formatDate, MOODS } from '../utils.js'
+import { formatDate, MOODS, getPlaces } from '../utils.js'
 
 function moodEmoji(v) {
   const m = MOODS.find((x) => x.value === v)
@@ -24,9 +24,8 @@ export default function Timeline({ entries, onOpen, onNew }) {
     return entries.filter((e) => {
       if (tag && !(e.activities || []).includes(tag)) return false
       if (!needle) return true
-      const hay = [e.title, e.place, e.diary, ...(e.activities || [])]
-        .join(' ')
-        .toLowerCase()
+      const pl = getPlaces(e).flatMap((p) => [p.name, p.region, p.review])
+      const hay = [e.title, e.diary, ...(e.activities || []), ...pl].join(' ').toLowerCase()
       return hay.includes(needle)
     })
   }, [entries, q, tag])
@@ -42,7 +41,7 @@ export default function Timeline({ entries, onOpen, onNew }) {
     )
   }
 
-  const places = new Set(entries.map((e) => e.place).filter(Boolean)).size
+  const places = new Set(entries.flatMap((e) => getPlaces(e).map((p) => p.name)).filter(Boolean)).size
   const photos = entries.reduce((n, e) => n + (e.photos?.length || 0), 0)
 
   return (
@@ -97,38 +96,45 @@ export default function Timeline({ entries, onOpen, onNew }) {
         </div>
       ) : (
         <div className="cards">
-          {filtered.map((e) => (
-            <article key={e.id} className="card" onClick={() => onOpen(e.id)}>
-              {e.photos?.length ? (
-                <div className="card-cover">
-                  <Photo blob={e.photos[0].blob} alt={e.title} />
-                  {e.photos.length > 1 && (
-                    <span className="count"><Icon name="image" size={13} /> {e.photos.length}</span>
+          {filtered.map((e) => {
+            const pls = getPlaces(e)
+            const region = pls.find((p) => p.region)?.region
+            return (
+              <article key={e.id} className="card" onClick={() => onOpen(e.id)}>
+                {e.photos?.length ? (
+                  <div className="card-cover">
+                    <Photo blob={e.photos[0].blob} alt={e.title} />
+                    {e.photos.length > 1 && (
+                      <span className="count"><Icon name="image" size={13} /> {e.photos.length}</span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="card-cover empty"><Icon name="image" size={32} /></div>
+                )}
+                <div className="card-body">
+                  <div className="card-meta">
+                    <span>{formatDate(e.date)}</span>
+                    {region ? <span>· {region}</span> : null}
+                    {e.mood ? <span>· {moodEmoji(e.mood)}</span> : null}
+                  </div>
+                  <h3 className="card-title">{e.title || '제목 없는 데이트'}</h3>
+                  {pls.length > 0 && (
+                    <div className="card-place">
+                      <Icon name="pin" size={14} /> {pls[0].name}
+                      {pls.length > 1 ? ` 외 ${pls.length - 1}곳` : ''}
+                    </div>
+                  )}
+                  {e.activities?.length > 0 && (
+                    <div className="tagrow">
+                      {e.activities.slice(0, 4).map((a) => (
+                        <span key={a} className="tag">{a}</span>
+                      ))}
+                    </div>
                   )}
                 </div>
-              ) : (
-                <div className="card-cover empty"><Icon name="image" size={32} /></div>
-              )}
-              <div className="card-body">
-                <div className="card-meta">
-                  <span>{formatDate(e.date)}</span>
-                  {e.region ? <span>· {e.region}</span> : null}
-                  {e.mood ? <span>· {moodEmoji(e.mood)}</span> : null}
-                </div>
-                <h3 className="card-title">{e.title || '제목 없는 데이트'}</h3>
-                {e.place && (
-                  <div className="card-place"><Icon name="pin" size={14} /> {e.place}</div>
-                )}
-                {e.activities?.length > 0 && (
-                  <div className="tagrow">
-                    {e.activities.slice(0, 4).map((a) => (
-                      <span key={a} className="tag">{a}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </article>
-          ))}
+              </article>
+            )
+          })}
         </div>
       )}
     </>

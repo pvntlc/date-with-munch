@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Icon from './Icon.jsx'
 import { searchPlaces } from '../placeApi.js'
+import { naverMapUrl } from '../utils.js'
 
 // 장소 검색 → 선택. 선택 시 onPick({ name, address, region, lat, lng }) 호출.
 export default function PlacePicker({ base, onPick }) {
@@ -47,17 +48,23 @@ export default function PlacePicker({ base, onPick }) {
       )}
 
       {results && results.length > 0 && (
-        <div className="picker-results">
-          {results.map((r, i) => (
-            <button key={i} type="button" className="picker-item" onClick={() => onPick(r)}>
-              <span className="picker-item-main">
-                <strong>{r.name}</strong>
-                <span className="muted">{r.address}</span>
-              </span>
-              {r.region && <span className="picker-region">{r.region}</span>}
-            </button>
-          ))}
-        </div>
+        <>
+          <div className="picker-results">
+            {results.map((r, i) => (
+              <button key={i} type="button" className="picker-item" onClick={() => onPick(r)}>
+                <span className="picker-item-main">
+                  <strong>{r.name}</strong>
+                  {r.category && <span className="picker-cat">{r.category.replace(/>/g, ' › ')}</span>}
+                  <span className="muted">{r.address}</span>
+                </span>
+                {r.region && <span className="picker-region">{r.region}</span>}
+              </button>
+            ))}
+          </div>
+          <a className="picker-more" href={naverMapUrl(q)} target="_blank" rel="noreferrer">
+            찾는 곳이 없나요? 네이버 지도에서 더 찾기 <Icon name="external" size={13} />
+          </a>
+        </>
       )}
     </div>
   )
