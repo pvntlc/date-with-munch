@@ -120,7 +120,10 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <div className="topbar-inner">
-          <div className="brand">{inOverlay ? '위드먼치' : TITLES[tab]}</div>
+          <div className="brand">
+            <img src="/munch.png" alt="먹고자" className="brand-munch" />
+            {inOverlay ? '위드먼치' : TITLES[tab]}
+          </div>
           <div className="spacer" />
           {!inOverlay && (tab === 'timeline' || tab === 'calendar') && (
             <button className="btn primary" onClick={() => openOverlay({ name: 'form' })}>+ 기록</button>

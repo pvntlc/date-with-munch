@@ -23,6 +23,9 @@ server/.env
 *.log
 npm-debug.log*
 
+# 원본 소스 이미지(누끼 전) — public/munch.png 만 사용
+/munch.jpg
+
 # OS / 에디터
 .DS_Store
 Thumbs.db
