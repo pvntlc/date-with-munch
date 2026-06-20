@@ -7,6 +7,7 @@ import {
   formatDate,
 } from '../utils.js'
 import { newId } from '../db.js'
+import DatePicker from './DatePicker.jsx'
 
 export default function DdayView({ settings, onSave }) {
   const [startDate, setStartDate] = useState(settings.startDate || '')
@@ -56,7 +57,7 @@ export default function DdayView({ settings, onSave }) {
       {/* 사귄 날 */}
       <div className="field">
         <label>처음 만난 날 / 사귀기 시작한 날</label>
-        <input type="date" value={startDate} onChange={(e) => commitStart(e.target.value)} />
+        <DatePicker value={startDate} onChange={commitStart} />
       </div>
 
       {days != null && (
@@ -100,11 +101,7 @@ export default function DdayView({ settings, onSave }) {
             value={draft.title}
             onChange={(e) => setDraft({ ...draft, title: e.target.value })}
           />
-          <input
-            type="date"
-            value={draft.date}
-            onChange={(e) => setDraft({ ...draft, date: e.target.value })}
-          />
+          <DatePicker value={draft.date} onChange={(d) => setDraft({ ...draft, date: d })} />
           <label className="check">
             <input
               type="checkbox"
