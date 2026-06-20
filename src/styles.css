@@ -53,15 +53,15 @@ img { display: block; }
   align-items: center;
   gap: 12px;
 }
-.brand { display: flex; align-items: center; gap: 3px; }
+.brand { display: flex; align-items: center; gap: 2px; }
 .brand-text {
-  font-family: 'Do Hyeon', -apple-system, 'Apple SD Gothic Neo', sans-serif;
-  font-size: 22px; font-weight: 400; line-height: 1;
-  color: var(--accent); letter-spacing: -0.01em;
+  font-family: 'Black Han Sans', -apple-system, 'Apple SD Gothic Neo', sans-serif;
+  font-size: 27px; font-weight: 400; line-height: 1;
+  color: var(--accent); letter-spacing: 0.01em;
 }
 .brand-munch {
-  height: 30px; width: auto; display: block;
-  transform: scaleX(-1) rotate(-13deg) translateY(-2px);
+  height: 40px; width: auto; display: block;
+  transform: scaleX(-1) rotate(-13deg) translateY(-3px);
 }
 .spacer { flex: 1; }
 
