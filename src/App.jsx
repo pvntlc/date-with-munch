@@ -18,7 +18,7 @@ const TABS = [
 ]
 
 const TITLES = {
-  timeline: '우리의 데이트 기록',
+  timeline: '위드먼치',
   calendar: '달력',
   course: '지역별 코스',
   dday: '기념일 · D-day',
@@ -75,7 +75,7 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <div className="topbar-inner">
-          <div className="brand">{inOverlay ? '우리의 데이트 기록' : TITLES[tab]}</div>
+          <div className="brand">{inOverlay ? '위드먼치' : TITLES[tab]}</div>
           <div className="spacer" />
           {!inOverlay && (tab === 'timeline' || tab === 'calendar') && (
             <button className="btn primary" onClick={() => setOverlay({ name: 'form' })}>+ 기록</button>

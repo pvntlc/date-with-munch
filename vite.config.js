@@ -9,9 +9,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/apple-touch-icon.png', 'icons/favicon.png'],
       manifest: {
-        name: '우리의 데이트 기록',
-        short_name: '데이트기록',
-        description: '여자친구와의 데이트를 사진·장소·일기로 기록하는 앱',
+        name: '위드먼치',
+        short_name: '위드먼치',
+        description: '먹고자와의 데이트를 사진·장소·일기로 기록하는 앱',
         lang: 'ko',
         theme_color: '#ffffff',
         background_color: '#fbfbfa',
