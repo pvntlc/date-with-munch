@@ -3,6 +3,7 @@ import Photo from './Photo.jsx'
 import Icon from './Icon.jsx'
 import PlacePicker from './PlacePicker.jsx'
 import StarRating from './StarRating.jsx'
+import DatePicker from './DatePicker.jsx'
 import { MOODS, todayISO, compressImage, REGION_SUGGEST, getPlaces } from '../utils.js'
 import { isConfigured } from '../placeApi.js'
 import { newId } from '../db.js'
@@ -156,7 +157,7 @@ export default function EntryForm({ initial, onSave, onCancel, regions = [], pla
 
       <div className="field">
         <label>날짜</label>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        <DatePicker value={date} onChange={setDate} />
       </div>
 
       <div className="field">

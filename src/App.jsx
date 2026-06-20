@@ -52,6 +52,24 @@ export default function App() {
     refresh()
   }, [])
 
+  // 안드로이드/브라우저 뒤로가기로 오버레이(상세·작성)를 닫음 (앱이 꺼지지 않게)
+  useEffect(() => {
+    const onPop = () => setOverlay(null)
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+
+  // 목록에서 상세/작성으로 진입할 때 히스토리 항목을 하나 쌓음
+  function openOverlay(o) {
+    window.history.pushState({ ovl: 1 }, '')
+    setOverlay(o)
+  }
+  // 오버레이를 닫고 목록으로 (쌓아둔 히스토리를 소비)
+  function exitOverlay() {
+    if (window.history.state?.ovl) window.history.back()
+    else setOverlay(null)
+  }
+
   // 로딩이 끝나면 잠금 여부 판단: 잠금이 꺼져 있으면 바로 통과
   useEffect(() => {
     if (!loading && !settings.lock?.enabled) setUnlocked(true)
@@ -83,7 +101,7 @@ export default function App() {
   async function handleDelete(id) {
     await deleteEntry(id)
     await refresh()
-    setOverlay(null)
+    exitOverlay()
   }
 
   async function handleSaveSettings(value) {
@@ -105,7 +123,7 @@ export default function App() {
           <div className="brand">{inOverlay ? '위드먼치' : TITLES[tab]}</div>
           <div className="spacer" />
           {!inOverlay && (tab === 'timeline' || tab === 'calendar') && (
-            <button className="btn primary" onClick={() => setOverlay({ name: 'form' })}>+ 기록</button>
+            <button className="btn primary" onClick={() => openOverlay({ name: 'form' })}>+ 기록</button>
           )}
         </div>
       </header>
@@ -120,12 +138,12 @@ export default function App() {
               regions={regions}
               placeApiBase={placeApiBase}
               onSave={handleSave}
-              onCancel={() => setOverlay(current ? { name: 'detail', id: current.id } : null)}
+              onCancel={() => (current ? setOverlay({ name: 'detail', id: current.id }) : exitOverlay())}
             />
           ) : (
             <EntryDetail
               entry={current}
-              onBack={() => setOverlay(null)}
+              onBack={exitOverlay}
               onEdit={() => setOverlay({ name: 'form', id: current.id })}
               onDelete={handleDelete}
             />
@@ -133,13 +151,13 @@ export default function App() {
         ) : tab === 'timeline' ? (
           <Timeline
             entries={entries}
-            onOpen={(id) => setOverlay({ name: 'detail', id })}
-            onNew={() => setOverlay({ name: 'form' })}
+            onOpen={(id) => openOverlay({ name: 'detail', id })}
+            onNew={() => openOverlay({ name: 'form' })}
           />
         ) : tab === 'calendar' ? (
-          <CalendarView entries={entries} onOpen={(id) => setOverlay({ name: 'detail', id })} />
+          <CalendarView entries={entries} onOpen={(id) => openOverlay({ name: 'detail', id })} />
         ) : tab === 'course' ? (
-          <CourseView entries={entries} onOpen={(id) => setOverlay({ name: 'detail', id })} />
+          <CourseView entries={entries} onOpen={(id) => openOverlay({ name: 'detail', id })} />
         ) : tab === 'dday' ? (
           <DdayView settings={settings} onSave={handleSaveSettings} />
         ) : (

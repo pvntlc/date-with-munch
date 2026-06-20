@@ -436,6 +436,41 @@ img { display: block; }
 .lock-status { font-size: 14px; font-weight: 500; margin: 4px 0 12px; }
 .lock-msg { font-size: 12.5px; margin-top: 10px; }
 
+/* ---------- Date picker ---------- */
+.datepicker { position: relative; }
+.dp-field {
+  width: 100%; display: flex; align-items: center; gap: 9px;
+  border: 1px solid var(--border-strong); background: var(--surface);
+  border-radius: var(--radius-sm); padding: 12px 13px; font-size: 15px;
+  color: var(--text); text-align: left;
+}
+.dp-field svg { color: var(--text-faint); flex: 0 0 auto; }
+.dp-field:hover { border-color: var(--ink); }
+.dp-pop {
+  position: absolute; z-index: 50; top: calc(100% + 6px); left: 0;
+  width: 300px; max-width: 100%;
+  background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px;
+}
+.dp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.dp-title { font-size: 15px; font-weight: 600; }
+.dp-nav {
+  width: 32px; height: 32px; border-radius: 8px; border: none; background: none;
+  font-size: 20px; color: var(--text-soft); display: flex; align-items: center; justify-content: center;
+}
+.dp-nav:hover { background: #f1f1ef; }
+.dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.dp-wd { margin-bottom: 4px; }
+.dp-wdi { text-align: center; font-size: 11px; font-weight: 600; color: var(--text-faint); padding: 2px 0; }
+.dp-wdi.sun, .dp-wdi.sat { color: var(--text-faint); }
+.dp-day {
+  aspect-ratio: 1; border: none; background: none; border-radius: 8px;
+  font-size: 13.5px; color: var(--text); display: flex; align-items: center; justify-content: center;
+}
+.dp-day:hover { background: #f1f1ef; }
+.dp-day.today { font-weight: 700; }
+.dp-day.sel { background: var(--ink); color: #fff; font-weight: 600; }
+
 /* ---------- Star rating ---------- */
 .stars { display: inline-flex; gap: 2px; }
 .stars .star { border: none; background: none; padding: 1px; line-height: 0; color: var(--border-strong); }
