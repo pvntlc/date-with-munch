@@ -6,6 +6,7 @@ import DdayView from './components/DdayView.jsx'
 import MoreView from './components/MoreView.jsx'
 import EntryDetail from './components/EntryDetail.jsx'
 import EntryForm from './components/EntryForm.jsx'
+import LockScreen from './components/LockScreen.jsx'
 import Icon from './components/Icon.jsx'
 import { getAllEntries, getSettings, saveSettings, saveEntry, deleteEntry } from './db.js'
 
@@ -31,6 +32,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('timeline')
   const [overlay, setOverlay] = useState(null) // {name:'detail'|'form', id?}
+  const [unlocked, setUnlocked] = useState(false)
 
   async function refresh() {
     const [e, s] = await Promise.all([getAllEntries(), getSettings()])
@@ -42,6 +44,11 @@ export default function App() {
   useEffect(() => {
     refresh()
   }, [])
+
+  // 로딩이 끝나면 잠금 여부 판단: 잠금이 꺼져 있으면 바로 통과
+  useEffect(() => {
+    if (!loading && !settings.lock?.enabled) setUnlocked(true)
+  }, [loading, settings.lock?.enabled])
 
   const current = overlay?.id ? entries.find((e) => e.id === overlay.id) : null
 
@@ -76,6 +83,11 @@ export default function App() {
   }
 
   const inOverlay = overlay && (overlay.name === 'form' || (overlay.name === 'detail' && current))
+
+  // 잠금 화면 게이트
+  if (!loading && settings.lock?.enabled && !unlocked) {
+    return <LockScreen lock={settings.lock} onUnlock={() => setUnlocked(true)} />
+  }
 
   return (
     <div className="app">
